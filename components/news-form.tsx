@@ -28,8 +28,10 @@ interface News {
 export function NewsForm({ news }: { news?: News }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(news?.image_url || null)
 
   const [formData, setFormData] = useState({
     title: news?.title || "",
