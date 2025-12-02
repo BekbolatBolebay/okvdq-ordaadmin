@@ -1,0 +1,31 @@
+-- Setup Supabase Storage policies for news images
+-- This enables authenticated users to upload and access news images
+
+-- Allow authenticated users to upload images to news folder
+CREATE POLICY "Authenticated users can upload news images"
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (bucket_id = 'news');
+
+-- Allow authenticated users to read news images
+CREATE POLICY "Authenticated users can read news images"
+  ON storage.objects FOR SELECT
+  TO authenticated
+  USING (bucket_id = 'news');
+
+-- Allow authenticated users to update their own news images
+CREATE POLICY "Authenticated users can update news images"
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (bucket_id = 'news');
+
+-- Allow authenticated users to delete their own news images
+CREATE POLICY "Authenticated users can delete news images"
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (bucket_id = 'news');
+
+-- Make news bucket public for viewing
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('news', 'news', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
