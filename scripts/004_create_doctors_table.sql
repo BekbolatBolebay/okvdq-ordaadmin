@@ -19,25 +19,30 @@ CREATE TABLE IF NOT EXISTS doctors (
 -- Enable RLS
 ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
 
--- Only authenticated admin users can view doctors
+-- Allow all authenticated users to view doctors
 CREATE POLICY "Authenticated users can view doctors"
   ON doctors FOR SELECT
-  USING (auth.uid() IN (SELECT id FROM admin_users));
+  TO authenticated
+  USING (true);
 
--- Only authenticated admin users can insert doctors
+-- Allow all authenticated users to insert doctors
 CREATE POLICY "Authenticated users can insert doctors"
   ON doctors FOR INSERT
-  WITH CHECK (auth.uid() IN (SELECT id FROM admin_users));
+  TO authenticated
+  WITH CHECK (true);
 
--- Only authenticated admin users can update doctors
+-- Allow all authenticated users to update doctors
 CREATE POLICY "Authenticated users can update doctors"
   ON doctors FOR UPDATE
-  USING (auth.uid() IN (SELECT id FROM admin_users));
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
 
--- Only authenticated admin users can delete doctors
+-- Allow all authenticated users to delete doctors
 CREATE POLICY "Authenticated users can delete doctors"
   ON doctors FOR DELETE
-  USING (auth.uid() IN (SELECT id FROM admin_users));
+  TO authenticated
+  USING (true);
 
 -- Create index for better performance
 CREATE INDEX IF NOT EXISTS idx_doctors_status ON doctors(status);
