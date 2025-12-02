@@ -51,13 +51,11 @@ export default function SignUpPage() {
       })
       if (signUpError) throw signUpError
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (signInError) throw signInError
-
-      router.push("/admin")
+      // If email confirmations are enabled in Supabase, sign-in will fail until
+      // the user confirms their email. Redirect to the success page which
+      // instructs the user to check their email instead of attempting to sign in
+      // immediately.
+      router.push("/auth/sign-up-success")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {

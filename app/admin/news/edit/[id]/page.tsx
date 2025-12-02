@@ -19,8 +19,8 @@ export default async function EditNewsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Edit News Article</h1>
-        <p className="text-slate-600 mt-2">Update news article information</p>
+        <h1 className="text-3xl font-bold text-slate-900">Редактировать новость</h1>
+        <p className="text-slate-600 mt-2">Обновить информацию о новости</p>
       </div>
 
       <NewsForm news={news} />

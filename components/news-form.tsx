@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
+import { createNews, updateNews } from "@/app/actions/news"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -28,6 +29,7 @@ export function NewsForm({ news }: { news?: News }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const [formData, setFormData] = useState({
     title: news?.title || "",
@@ -48,39 +50,35 @@ export function NewsForm({ news }: { news?: News }) {
     const supabase = createClient()
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      // If a file is selected, upload it to Supabase Storage first
+      if (selectedFile) {
+        const MAX_BYTES = 5 * 1024 * 1024 // 5MB
+        if (selectedFile.size > MAX_BYTES) throw new Error("Файл слишком большой — максимум 5 МБ")
 
-      if (!user) {
-        throw new Error("You must be logged in to perform this action")
+        const fileExt = selectedFile.name.split(".").pop()
+        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`
+        const filePath = `news/${fileName}`
+
+        const { error: uploadError } = await supabase.storage.from("news").upload(filePath, selectedFile)
+        if (uploadError) throw uploadError
+
+        const { data: publicData } = await supabase.storage.from("news").getPublicUrl(filePath)
+        // @ts-ignore
+        formData.image_url = publicData?.publicUrl || formData.image_url
       }
 
       if (news) {
         // Update existing news
-        const { error: updateError } = await supabase
-          .from("news")
-          .update({
-            ...formData,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", news.id)
-
-        if (updateError) throw updateError
+        await updateNews(news.id, formData)
       } else {
         // Create new news
-        const { error: insertError } = await supabase.from("news").insert({
-          ...formData,
-          created_by: user.id,
-        })
-
-        if (insertError) throw insertError
+        await createNews(formData)
       }
 
       router.push("/admin/news")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : "Произошла ошибка")
     } finally {
       setIsLoading(false)
     }
@@ -166,7 +164,26 @@ export function NewsForm({ news }: { news?: News }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">Image URL</Label>
+            <Label htmlFor="image_file">Изображение (до 5 МБ)</Label>
+            <input
+              id="image_file"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null
+                setError(null)
+                if (file) {
+                  const MAX_BYTES = 5 * 1024 * 1024
+                  if (file.size > MAX_BYTES) {
+                    setSelectedFile(null)
+                    setError("Файл слишком большой — максимум 5 МБ")
+                    return
+                  }
+                }
+                setSelectedFile(file)
+              }}
+            />
+            <Label htmlFor="image_url">URL изображения (при необходимости)</Label>
             <Input
               id="image_url"
               value={formData.image_url}
@@ -194,10 +211,10 @@ export function NewsForm({ news }: { news?: News }) {
 
           <div className="flex gap-3">
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : news ? "Update Article" : "Create Article"}
+              {isLoading ? "Сохранение..." : news ? "Обновить статью" : "Создать статью"}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.back()}>
-              Cancel
+              Отмена
             </Button>
           </div>
         </form>

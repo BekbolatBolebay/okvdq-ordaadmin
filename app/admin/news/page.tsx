@@ -20,39 +20,39 @@ export default async function NewsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">News Management</h1>
-          <p className="text-slate-600 mt-2">Manage news articles and updates</p>
+          <h1 className="text-3xl font-bold text-slate-900">Управление новостями</h1>
+          <p className="text-slate-600 mt-2">Управление статьями и обновлениями</p>
         </div>
         <Button asChild>
           <Link href="/admin/news/create">
             <Plus className="h-4 w-4 mr-2" />
-            Add News
+            Добавить новость
           </Link>
         </Button>
       </div>
 
       <Card className="border-slate-200">
         <CardHeader>
-          <CardTitle>All News Articles</CardTitle>
+          <CardTitle>Все статьи</CardTitle>
         </CardHeader>
         <CardContent>
           {!news || news.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-600">No news articles found.</p>
+              <p className="text-slate-600">Статей не найдено.</p>
               <Button asChild className="mt-4">
-                <Link href="/admin/news/create">Create your first article</Link>
+                <Link href="/admin/news/create">Создать первую статью</Link>
               </Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Published Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Заголовок</TableHead>
+                  <TableHead>Категория</TableHead>
+                  <TableHead>Автор</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Дата публикации</TableHead>
+                  <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
